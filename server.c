@@ -35,25 +35,30 @@ int main()
 {
     int listen_fd, client_fd;
     int byte_read;
+    int call_successful;
+
     const char *socket_pathname = "/tmp/mysock";
     struct sockaddr addr;
     char buf[BUF_SIZE];
 
     listen_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (listen_fd == -1)
-        exit(1);
+    EXIT_IF_FAILS(listen_fd, -1, "Socket creation failed", 1);
+
     memset(&addr, 0, sizeof(struct sockaddr));
     addr.sa_family = AF_UNIX;
     strncpy(addr.sa_data, socket_pathname, sizeof(addr.sa_data) - 1);
-    if (bind(listen_fd, (struct sockaddr *) &addr, sizeof(struct sockaddr)) == -1)
-        exit(1);
-    if (listen(listen_fd, 5) == -1)
-        exit(1);
+
+    call_successful = bind(listen_fd, (struct sockaddr *) &addr, sizeof(struct sockaddr));
+    EXIT_IF_FAILS(call_successful, -1, "Bind Failed", 1);
+
+    call_successful = listen(listen_fd, 5);
+    EXIT_IF_FAILS(call_successful, -1, "Listen Failed", 1);
+
     while (1)
     {
         client_fd = accept(listen_fd, NULL, NULL);
-        if (client_fd == -1)
-            exit(1);
+        EXIT_IF_FAILS(client_fd, -1, "Accept failed", 1);
+
         while ((byte_read = read(client_fd, &buf, BUF_SIZE)) > 0)
         {
             if (write(STDOUT_FILENO, buf, BUF_SIZE) != byte_read)

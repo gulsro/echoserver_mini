@@ -16,18 +16,20 @@ int main()
 {
     int client_fd;
     int byte_read;
+    int call_successful;
     const char *socket_pathname = "/tmp/mysock";
     struct sockaddr addr;
     char buf[BUF_SIZE];
 
     client_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (client_fd == -1)
-        exit(1);
+    EXIT_IF_FAILS(client_fd, -1, "Failed to create client socket", 1);
+
     memset(&addr, 0, sizeof(struct sockaddr));
     addr.sa_family = AF_UNIX;
     strncpy(addr.sa_data, socket_pathname, sizeof(addr.sa_data) - 1);
-    if (connect(client_fd, (struct sockaddr *) &addr, sizeof(struct sockaddr)) == -1)
-        exit(1);
+    call_successful = connect(client_fd, (struct sockaddr *) &addr, sizeof(struct sockaddr));
+    EXIT_IF_FAILS(call_successful, -1, "Failed to connect to server", 1);
+
     while ((byte_read = read(STDIN_FILENO, buf, BUF_SIZE)) > 0)
     {
         if (byte_read != write(client_fd, buf, BUF_SIZE))
