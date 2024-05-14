@@ -35,7 +35,7 @@ int main()
         if (byte_read != write(client_fd, buf, BUF_SIZE))
             exit(1);
     }
-    exit(1);
+    exit(0);
 }
 
 

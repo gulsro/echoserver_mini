@@ -6,13 +6,14 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <iostream.h>
 
 #define BUF_SIZE 100
 
 #define EXIT_IF_FAILS(__value, __failure_value, __failure_message, __exit_code) \
             do {                                                                \
                 if (__value == __failure_value) {                               \
-                    printf("%s\n", __failure_message);                          \
+                    std::err << "Failed: " << __failure_message << std::endl;   \
                     exit(__exit_code);                                          \
                 }                                                               \
             } while(0);                                                         \
@@ -25,5 +26,4 @@ struct sockaddr_in sockaddr{
     in_port_t sin_port = htons(8080);
 }
 
-#include <iostream.h>
 
