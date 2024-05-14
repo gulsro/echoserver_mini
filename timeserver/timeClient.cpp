@@ -23,19 +23,19 @@ int main(int argc, char** argv) {
     int connect_success = connect(clientfd, (struct sockaddr *) &sockaddr, sizeof(struct sockaddr));
     EXIT_IF_FAILS(connect_success, -1, "Connect()", 1);
 
-
-    //while (byte_read == read(clientfd, buf, BUF_SIZE) > 0) {
     while (true) {
         byte_read = read(clientfd, buf, BUF_SIZE);
         if (byte_read <= 0) {
             // Either an error occurred or the connection was closed
             break;
         }
-        // if (write(clientfd, buf, byte_read) != byte_read)
-        //     std::cout << "Write() failed" << std::endl;
-        //     exit(1);
-        std::cout << "time: " << std::string(buf, byte_read);
-        std::cout << std::endl;
+        if (write(STDOUT_FILENO, buf, byte_read) != byte_read)
+            std::cout << "Write() failed" << std::endl;
+            exit(1);
+
+        // OR below;
+        //std::cout << "The current time: " << std::string(buf, byte_read);
+        //std::cout << std::endl;
     }
     // I had to comment-out because i closed that fd in server first
     //close(clientfd);

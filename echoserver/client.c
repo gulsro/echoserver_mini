@@ -27,12 +27,16 @@ int main()
     memset(&addr, 0, sizeof(struct sockaddr));
     addr.sa_family = AF_UNIX;
     strncpy(addr.sa_data, socket_pathname, sizeof(addr.sa_data) - 1);
+
     call_successful = connect(client_fd, (struct sockaddr *) &addr, sizeof(struct sockaddr));
     EXIT_IF_FAILS(call_successful, -1, "Failed to connect to server", 1);
 
-    while ((byte_read = read(STDIN_FILENO, buf, BUF_SIZE)) > 0)
+    while (1)
     {
-        if (byte_read != write(client_fd, buf, BUF_SIZE))
+        byte_read = read(STDIN_FILENO, buf, BUF_SIZE);
+        if (byte_read <= 0)
+            break ;
+        if (byte_read != write(client_fd, buf, byte_read))
             exit(1);
     }
     exit(0);

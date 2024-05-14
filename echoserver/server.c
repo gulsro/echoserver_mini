@@ -33,7 +33,7 @@ struct sockaddr_un {
 
 int main()
 {
-    int listen_fd, client_fd;
+    int server_fd, client_fd;
     int byte_read;
     int call_successful;
 
@@ -41,30 +41,31 @@ int main()
     struct sockaddr addr;
     char buf[BUF_SIZE];
 
-    listen_fd = socket(AF_UNIX, SOCK_STREAM, 0);
-    EXIT_IF_FAILS(listen_fd, -1, "Socket creation failed", 1);
+    server_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    EXIT_IF_FAILS(server_fd, -1, "Socket creation failed", 1);
 
     memset(&addr, 0, sizeof(struct sockaddr));
     addr.sa_family = AF_UNIX;
     strncpy(addr.sa_data, socket_pathname, sizeof(addr.sa_data) - 1);
 
-    call_successful = bind(listen_fd, (struct sockaddr *) &addr, sizeof(struct sockaddr));
+    call_successful = bind(server_fd, (struct sockaddr *) &addr, sizeof(struct sockaddr));
     EXIT_IF_FAILS(call_successful, -1, "Bind Failed", 1);
 
-    call_successful = listen(listen_fd, 5);
+    call_successful = listen(server_fd, 5);
     EXIT_IF_FAILS(call_successful, -1, "Listen Failed", 1);
 
     while (1)
     {
-        client_fd = accept(listen_fd, NULL, NULL);
+        client_fd = accept(server_fd, NULL, NULL);
         EXIT_IF_FAILS(client_fd, -1, "Accept failed", 1);
 
         while ((byte_read = read(client_fd, &buf, BUF_SIZE)) > 0)
         {
-            if (write(STDOUT_FILENO, buf, BUF_SIZE) != byte_read)
+            if (byte_read != write(STDOUT_FILENO, buf, byte_read))
                 exit(1);
         }
-        close(client_fd);
+        if (close(client_fd) == -1)
+            exit(1);
     }
-
+    unlink(socket_pathname);
 }

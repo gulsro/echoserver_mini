@@ -38,9 +38,11 @@ int main(int argc, char** argv) {
 
         //get time
         ticks = time(nullptr);
+        //ctime returns text representation of time_t obj
         std::string time_string = ctime(&ticks);
 
         //send time value to client
+        //c_str() returns char pointer representation on str obj
         if (write(clientfd, time_string.c_str(), time_string.size()) < 0) {
             std::cout << "Write() failed" << std::endl;
                  exit(1);
@@ -51,7 +53,7 @@ int main(int argc, char** argv) {
         //         exit(1);
         //     }
         if (close(clientfd) == -1) {
-            std::cout << "Accept() failed" << std::endl;
+            std::cout << "Close() failed" << std::endl;
             exit(1);
         }
     }
